@@ -1,4 +1,4 @@
-package com.github.khshourov.microservices.core.composite;
+package com.github.khshourov.microservices.composite.product;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
