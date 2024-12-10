@@ -1,0 +1,61 @@
+plugins {
+    // Apply the application plugin to add support for building a CLI application in Java.
+    id 'application'
+
+    // The Checkstyle plugin performs quality checks on your project’s Java source files using Checkstyle and
+    // generates reports from these checks.
+    alias libs.plugins.checkstyle
+
+    // Formatting codes
+    alias libs.plugins.spotless
+
+    // Spring boot related plugins
+    alias libs.plugins.spring.boot
+    alias libs.plugins.dependency.management
+}
+
+dependencies {
+    implementation libs.guava
+
+    implementation libs.spring.boot.starter.actuator
+    implementation libs.spring.boot.starter.webflux
+
+    testImplementation libs.spring.boot.starter.test
+    testImplementation libs.reactor.test
+}
+
+application {
+    // Define the main class for the application.
+    mainClass = 'com.github.khshourov.microservices.core.composite.ProductCompositeServiceApplication'
+}
+
+checkstyle {
+    toolVersion = '10.20.1'
+    // Directly copied from: https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/google_checks.xml
+    configFile = file("${project.rootDir}/checkstyle.xml")
+}
+
+// Directly copied from: https://github.com/diffplug/spotless/tree/main/plugin-gradle#java
+spotless {
+    java {
+        // Use the default importOrder configuration
+        importOrder()
+        // optional: you can specify import groups directly
+        // note: you can use an empty string for all the imports you didn't specify explicitly, '|' to join group without blank line, and '\\#` prefix for static imports
+        // importOrder('java|javax', 'com.acme', '', '\\#com.acme', '\\#')
+        // optional: instead of specifying import groups directly you can specify a config file
+        // export config file: https://github.com/diffplug/spotless/blob/main/ECLIPSE_SCREENSHOTS.md#creating-spotlessimportorder
+        // importOrderFile('eclipse-import-order.txt') // import order file as exported from eclipse
+
+        removeUnusedImports()
+
+        // Cleanthat will refactor your code, but it may break your style: apply it before your formatter
+        cleanthat()
+
+        googleJavaFormat()
+
+        formatAnnotations()  // fixes formatting of type annotations
+
+        // licenseHeader '/* (C) $YEAR */' // or licenseHeaderFile
+    }
+}
