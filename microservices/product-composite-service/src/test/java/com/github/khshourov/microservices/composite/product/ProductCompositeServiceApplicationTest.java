@@ -15,7 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -25,7 +25,7 @@ class ProductCompositeServiceApplicationTest {
   private static final int PRODUCT_ID_INVALID = 3;
 
   @Autowired private WebTestClient client;
-  @MockBean private ProductCompositeIntegration compositeIntegration;
+  @MockitoBean private ProductCompositeIntegration compositeIntegration;
 
   @BeforeEach
   void setUp() {
