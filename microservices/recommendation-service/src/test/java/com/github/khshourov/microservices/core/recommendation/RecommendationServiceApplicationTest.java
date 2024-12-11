@@ -1,6 +1,111 @@
 package com.github.khshourov.microservices.core.recommendation;
 
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@SpringBootTest
-class RecommendationServiceApplicationTest {}
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.reactive.server.WebTestClient;
+
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+class RecommendationServiceApplicationTest {
+  @Autowired private WebTestClient client;
+
+  @Test
+  void getRecommendationsForValidProductId() {
+    int validProductId = 1;
+
+    client
+        .get()
+        .uri("/recommendations?productId=" + validProductId)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectHeader()
+        .contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.length()")
+        .isEqualTo(3)
+        .jsonPath("$[0].productId")
+        .isEqualTo(validProductId);
+  }
+
+  @Test
+  void productIdIsRequired() {
+    client
+        .get()
+        .uri("/recommendations")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
+        .expectHeader()
+        .contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.path")
+        .isEqualTo("/recommendations")
+        .jsonPath("$.message")
+        .isEqualTo("Required query parameter 'productId' is not present.");
+  }
+
+  @Test
+  void productIdShouldBeInteger() {
+    String wronglyTypedProductId = "product-id";
+
+    client
+        .get()
+        .uri("/recommendations?productId=" + wronglyTypedProductId)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isBadRequest()
+        .expectHeader()
+        .contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.path")
+        .isEqualTo("/recommendations")
+        .jsonPath("$.message")
+        .isEqualTo("Type mismatch.");
+  }
+
+  @Test
+  void productIdCanNotBeNegative() {
+    int invalidProductId = -1;
+
+    client
+        .get()
+        .uri("/recommendations?productId=" + invalidProductId)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
+        .expectHeader()
+        .contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.path")
+        .isEqualTo("/recommendations")
+        .jsonPath("$.message")
+        .isEqualTo("Invalid product-id: " + invalidProductId);
+  }
+
+  @Test
+  void emptyListWhenProductNotFound() {
+    int notFoundProductId = 13;
+
+    client
+        .get()
+        .uri("/recommendations?productId=" + notFoundProductId)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectHeader()
+        .contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.length()")
+        .isEqualTo(0);
+  }
+}
