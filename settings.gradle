@@ -13,7 +13,7 @@ plugins {
 
 rootProject.name = 'spring-microservices'
 
-include(':microservices:product-service:app')
-include(':microservices:recommendation-service:app')
-include(':microservices:review-service:app')
-include(':microservices:product-composite-service:app')
+include(':microservices:product-service')
+include(':microservices:recommendation-service')
+include(':microservices:review-service')
+include(':microservices:product-composite-service')

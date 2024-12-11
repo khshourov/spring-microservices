@@ -24,9 +24,16 @@ dependencies {
     testImplementation libs.reactor.test
 }
 
+base {
+    archivesName = 'product-composite-service'
+}
+
+version = '0.0.1'
+group = 'com.github.khshourov.microservices.composite'
+
 application {
     // Define the main class for the application.
-    mainClass = 'com.github.khshourov.microservices.core.product.ProductServiceApplication'
+    mainClass = 'com.github.khshourov.microservices.core.composite.ProductCompositeServiceApplication'
 }
 
 checkstyle {

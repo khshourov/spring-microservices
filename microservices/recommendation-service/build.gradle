@@ -24,9 +24,16 @@ dependencies {
     testImplementation libs.reactor.test
 }
 
+base {
+    archivesName = 'recommendation-service'
+}
+
+version = '0.0.1'
+group = 'com.github.khshourov.microservices.core'
+
 application {
     // Define the main class for the application.
-    mainClass = 'com.github.khshourov.microservices.core.review.ReviewServiceApplication'
+    mainClass = 'com.github.khshourov.microservices.core.recommendation.RecommendationServiceApplication'
 }
 
 checkstyle {
