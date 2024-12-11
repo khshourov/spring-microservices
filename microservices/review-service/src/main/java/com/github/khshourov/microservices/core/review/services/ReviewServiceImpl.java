@@ -29,7 +29,7 @@ public class ReviewServiceImpl implements ReviewService {
       throw new InvalidInputException("Invalid product-id: " + productId);
     }
 
-    if (productId == 13) {
+    if (productId == 213) {
       log.debug("No review found for product-id: {}", productId);
       return List.of();
     }

@@ -93,7 +93,7 @@ class RecommendationServiceApplicationTest {
 
   @Test
   void emptyListWhenProductNotFound() {
-    int notFoundProductId = 13;
+    int notFoundProductId = 113;
 
     client
         .get()

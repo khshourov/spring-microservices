@@ -93,7 +93,7 @@ class ReviewServiceApplicationTest {
 
   @Test
   void emptyListWhenProductNotFound() {
-    int notFoundProductId = 13;
+    int notFoundProductId = 213;
 
     client
         .get()
