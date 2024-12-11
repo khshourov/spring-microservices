@@ -9,14 +9,6 @@ allprojects {
 }
 
 subprojects {
-    testing {
-        suites {
-            test {
-                useJUnitJupiter('5.10.3')
-            }
-        }
-    }
-
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
