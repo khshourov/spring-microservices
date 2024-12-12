@@ -1,5 +1,6 @@
 package com.github.khshourov.microservices.util.http;
 
+import com.github.khshourov.microservices.api.exceptions.BadRequestException;
 import com.github.khshourov.microservices.api.exceptions.InvalidInputException;
 import com.github.khshourov.microservices.api.exceptions.NotFoundException;
 import org.slf4j.Logger;
@@ -14,6 +15,14 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalControllerExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(GlobalControllerExceptionHandler.class);
+
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  @ExceptionHandler(BadRequestException.class)
+  public @ResponseBody HttpErrorInfo handleBadRequestExceptions(
+      ServerHttpRequest request, BadRequestException exception) {
+
+    return createHttpErrorInfo(HttpStatus.BAD_REQUEST, request, exception);
+  }
 
   @ResponseStatus(HttpStatus.NOT_FOUND)
   @ExceptionHandler(NotFoundException.class)

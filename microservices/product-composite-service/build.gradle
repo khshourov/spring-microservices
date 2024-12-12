@@ -26,6 +26,7 @@ dependencies {
     // To avoid the following error message on Apple silicon (for details, see https://github.com/netty/netty/issues/11693):
     // Unable to load io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS.
     implementation group: 'io.netty', name: 'netty-resolver-dns-native-macos', version: '4.1.115.Final', classifier: 'osx-aarch_64'
+    implementation libs.openapi.starter.webflux.ui
 
     testImplementation libs.spring.boot.starter.test
     testImplementation libs.reactor.test
