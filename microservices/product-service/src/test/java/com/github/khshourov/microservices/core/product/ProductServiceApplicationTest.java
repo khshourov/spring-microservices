@@ -1,7 +1,15 @@
 package com.github.khshourov.microservices.core.product;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static reactor.core.publisher.Mono.just;
 
+import com.github.khshourov.microservices.api.core.product.Product;
+import com.github.khshourov.microservices.core.product.persistence.ProductEntity;
+import com.github.khshourov.microservices.core.product.persistence.ProductRepository;
+import com.github.khshourov.microservices.core.product.testconfiguration.MongoDbTestBase;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,12 +18,87 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-class ProductServiceApplicationTest {
+class ProductServiceApplicationTest extends MongoDbTestBase {
   @Autowired private WebTestClient client;
+  @Autowired private ProductRepository repository;
+
+  private final ProductEntity existingEntity = new ProductEntity(1, "Product 1", 1);
+
+  @BeforeEach
+  void init() {
+    repository.deleteAll();
+  }
+
+  @Test
+  void createProductWithUniqueProductId() {
+    Product uniqueProduct = new Product(1, "Product 1", 1, "SA");
+
+    client
+        .post()
+        .uri("/product")
+        .body(just(uniqueProduct), Product.class)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isOk()
+        .expectHeader()
+        .contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.productId")
+        .isEqualTo(uniqueProduct.getProductId());
+
+    assertTrue(repository.findByProductId(uniqueProduct.getProductId()).isPresent());
+  }
+
+  @Test
+  void errorShouldBeThrownForDuplicateProductId() {
+    Product duplicateProduct = new Product(existingEntity.getProductId(), "Product 1", 1, "SA");
+    repository.save(existingEntity);
+
+    client
+        .post()
+        .uri("/product")
+        .body(just(duplicateProduct), Product.class)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY)
+        .expectHeader()
+        .contentType(MediaType.APPLICATION_JSON)
+        .expectBody()
+        .jsonPath("$.path")
+        .isEqualTo("/product")
+        .jsonPath("$.message")
+        .isEqualTo("Duplicate product-id: " + duplicateProduct.getProductId());
+  }
+
+  @Test
+  void sameEntityCanBeDeletedMultipleTimes() {
+    repository.save(existingEntity);
+
+    client
+        .delete()
+        .uri("/product/" + existingEntity.getProductId())
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isOk();
+
+    assertTrue(repository.findByProductId(existingEntity.getProductId()).isEmpty());
+
+    client
+        .delete()
+        .uri("/product/" + existingEntity.getProductId())
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus()
+        .isOk();
+  }
 
   @Test
   void getProductForValidId() {
-    int validProductId = 1;
+    repository.save(existingEntity);
+    int validProductId = existingEntity.getProductId();
 
     client
         .get()
@@ -29,6 +112,8 @@ class ProductServiceApplicationTest {
         .expectBody()
         .jsonPath("$.productId")
         .isEqualTo(validProductId);
+
+    assertTrue(repository.findByProductId(validProductId).isPresent());
   }
 
   @Test
