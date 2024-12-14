@@ -1,4 +1,4 @@
-package com.github.khshourov.microservices.core.product.testconfiguration;
+package com.github.khshourov.microservices.core.product.testlib;
 
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.testcontainers.containers.MongoDBContainer;

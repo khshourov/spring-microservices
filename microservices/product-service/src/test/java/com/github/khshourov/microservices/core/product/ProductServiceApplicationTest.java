@@ -1,6 +1,5 @@
 package com.github.khshourov.microservices.core.product;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static reactor.core.publisher.Mono.just;
@@ -8,7 +7,7 @@ import static reactor.core.publisher.Mono.just;
 import com.github.khshourov.microservices.api.core.product.Product;
 import com.github.khshourov.microservices.core.product.persistence.ProductEntity;
 import com.github.khshourov.microservices.core.product.persistence.ProductRepository;
-import com.github.khshourov.microservices.core.product.testconfiguration.MongoDbTestBase;
+import com.github.khshourov.microservices.core.product.testlib.MongoDbTestBase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

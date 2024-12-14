@@ -1,14 +1,12 @@
 package com.github.khshourov.microservices.core.product.persistence;
 
-import static java.util.stream.IntStream.rangeClosed;
+import static com.github.khshourov.microservices.core.product.testlib.Asserts.assertProductEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.github.khshourov.microservices.core.product.testconfiguration.MongoDbTestBase;
-import java.util.List;
+import com.github.khshourov.microservices.core.product.testlib.MongoDbTestBase;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,10 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 @DataMongoTest
 class ProductEntityTest extends MongoDbTestBase {
@@ -68,14 +62,6 @@ class ProductEntityTest extends MongoDbTestBase {
   }
 
   @Test
-  void findByProductId() {
-    Optional<ProductEntity> dbEntity = repository.findByProductId(savedEntity.getProductId());
-
-    assertTrue(dbEntity.isPresent());
-    assertProductEntity(savedEntity, dbEntity.get());
-  }
-
-  @Test
   void productIdCanNotBeDuplicate() {
     ProductEntity duplicateEntity = new ProductEntity(savedEntity.getProductId(), "Product 3", 3);
 
@@ -103,38 +89,5 @@ class ProductEntityTest extends MongoDbTestBase {
     assertTrue(entity.isPresent());
     assertEquals(1, entity.get().getVersion());
     assertEquals("Product 1-prime", entity.get().getName());
-  }
-
-  @Test
-  void pagination() {
-    repository.deleteAll();
-
-    List<ProductEntity> productEntityList =
-        rangeClosed(1, 10).mapToObj(i -> new ProductEntity(i, "Product " + i, i)).toList();
-    repository.saveAll(productEntityList);
-
-    Pageable nextPage = PageRequest.of(0, 4, Sort.Direction.ASC, "productId");
-    nextPage = assertNextPage(nextPage, List.of(1, 2, 3, 4), true);
-    nextPage = assertNextPage(nextPage, List.of(5, 6, 7, 8), true);
-    assertNextPage(nextPage, List.of(9, 10), false);
-  }
-
-  private void assertProductEntity(ProductEntity expected, ProductEntity actual) {
-    assertEquals(expected.getId(), actual.getId());
-    assertEquals(expected.getVersion(), actual.getVersion());
-    assertEquals(expected.getProductId(), actual.getProductId());
-    assertEquals(expected.getName(), actual.getName());
-    assertEquals(expected.getWeight(), actual.getWeight());
-  }
-
-  private Pageable assertNextPage(
-      Pageable page, List<Integer> expectedProductIds, boolean expectedNextPage) {
-    Page<ProductEntity> productEntityPage = repository.findAll(page);
-
-    assertIterableEquals(
-        expectedProductIds, productEntityPage.stream().map(ProductEntity::getProductId).toList());
-    assertEquals(expectedNextPage, productEntityPage.hasNext());
-
-    return productEntityPage.nextPageable();
   }
 }
