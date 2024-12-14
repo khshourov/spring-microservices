@@ -27,8 +27,20 @@ dependencies {
     // Unable to load io.netty.resolver.dns.macos.MacOSDnsServerAddressStreamProvider, fallback to system defaults. This may result in incorrect DNS resolutions on MacOS.
     implementation group: 'io.netty', name: 'netty-resolver-dns-native-macos', version: '4.1.115.Final', classifier: 'osx-aarch_64'
 
+    implementation libs.mapstruct
+    implementation libs.spring.data.mongodb
+
+    compileOnly libs.mapstruct.annotation.processor
+    annotationProcessor libs.mapstruct.annotation.processor
+    testAnnotationProcessor libs.mapstruct.annotation.processor
+
     testImplementation libs.spring.boot.starter.test
     testImplementation libs.reactor.test
+
+    testImplementation libs.spring.testcontainers
+    testImplementation libs.testcontainers.core
+    testImplementation libs.testcontainers.junit
+    testImplementation libs.testcontainers.mongodb
 }
 
 base {
