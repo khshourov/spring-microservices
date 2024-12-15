@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
   @Mapping(target = "serviceAddress", ignore = true)
+  @Mapping(target = "updateServiceAddress", ignore = true)
   Product entityToApi(ProductEntity entity);
 
   @Mapping(target = "id", ignore = true)

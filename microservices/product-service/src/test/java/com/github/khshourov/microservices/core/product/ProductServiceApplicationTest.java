@@ -44,9 +44,9 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
         .contentType(MediaType.APPLICATION_JSON)
         .expectBody()
         .jsonPath("$.productId")
-        .isEqualTo(uniqueProduct.getProductId());
+        .isEqualTo(uniqueProduct.productId());
 
-    assertTrue(repository.findByProductId(uniqueProduct.getProductId()).isPresent());
+    assertTrue(repository.findByProductId(uniqueProduct.productId()).isPresent());
   }
 
   @Test
@@ -68,7 +68,7 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
         .jsonPath("$.path")
         .isEqualTo("/product")
         .jsonPath("$.message")
-        .isEqualTo("Duplicate product-id: " + duplicateProduct.getProductId());
+        .isEqualTo("Duplicate product-id: " + duplicateProduct.productId());
   }
 
   @Test

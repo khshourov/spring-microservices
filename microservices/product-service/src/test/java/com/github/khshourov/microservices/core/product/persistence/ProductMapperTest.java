@@ -16,9 +16,9 @@ class ProductMapperTest {
 
     ProductEntity productEntity = productMapper.apiToEntity(product);
 
-    assertEquals(product.getProductId(), productEntity.getProductId());
-    assertEquals(product.getName(), productEntity.getName());
-    assertEquals(product.getWeight(), productEntity.getWeight());
+    assertEquals(product.productId(), productEntity.getProductId());
+    assertEquals(product.name(), productEntity.getName());
+    assertEquals(product.weight(), productEntity.getWeight());
   }
 
   @Test
@@ -27,9 +27,9 @@ class ProductMapperTest {
 
     Product product = productMapper.entityToApi(productEntity);
 
-    assertEquals(productEntity.getProductId(), product.getProductId());
-    assertEquals(productEntity.getName(), product.getName());
-    assertEquals(productEntity.getWeight(), product.getWeight());
-    assertNull(product.getServiceAddress());
+    assertEquals(productEntity.getProductId(), product.productId());
+    assertEquals(productEntity.getName(), product.name());
+    assertEquals(productEntity.getWeight(), product.weight());
+    assertNull(product.serviceAddress());
   }
 }

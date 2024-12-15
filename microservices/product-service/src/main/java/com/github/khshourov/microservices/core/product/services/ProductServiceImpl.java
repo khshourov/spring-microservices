@@ -42,7 +42,7 @@ public class ProductServiceImpl implements ProductService {
 
       return this.mapper.entityToApi(newEntity);
     } catch (DuplicateKeyException exception) {
-      throw new InvalidInputException("Duplicate product-id: " + request.getProductId());
+      throw new InvalidInputException("Duplicate product-id: " + request.productId());
     }
   }
 
@@ -68,9 +68,9 @@ public class ProductServiceImpl implements ProductService {
                 () -> new NotFoundException("No product found for product-id: " + productId));
 
     Product response = this.mapper.entityToApi(entity);
-    response.setServiceAddress(serviceUtil.getServiceAddress());
+    response = response.updateServiceAddress(serviceUtil.getServiceAddress());
 
-    log.debug("getProduct: found product-id: {}", response.getProductId());
+    log.debug("getProduct: found product-id: {}", response.productId());
 
     return response;
   }
