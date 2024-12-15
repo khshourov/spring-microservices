@@ -6,4 +6,14 @@ public record Recommendation(
     String author,
     int rate,
     String content,
-    String serviceAddress) {}
+    String serviceAddress) {
+  public Recommendation updateServiceAddress(String serviceAddress) {
+    return new Recommendation(
+        this.productId,
+        this.recommendationId,
+        this.author,
+        this.rate,
+        this.content,
+        serviceAddress);
+  }
+}

@@ -13,6 +13,7 @@ public interface RecommendationMapper {
   RecommendationEntity apiToEntity(Recommendation recommendation);
 
   @Mapping(target = "serviceAddress", ignore = true)
+  @Mapping(target = "updateServiceAddress", ignore = true)
   @Mapping(target = "rate", source = "recommendationEntity.rating")
   Recommendation entityToApi(RecommendationEntity recommendationEntity);
 
