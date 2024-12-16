@@ -10,6 +10,7 @@ reactor-test = "3.7.0"
 spring-openapi = "2.7.0"
 mapstruct = "1.6.3"
 testcontainers = "1.20.4"
+mysql-connector = "9.1.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -22,10 +23,13 @@ openapi-starter-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
 mapstruct-annotation-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
 spring-data-mongodb = { module = "org.springframework.boot:spring-boot-starter-data-mongodb", version.ref = "spring-boot" }
+spring-data-mysql = { module = "org.springframework.boot:spring-boot-starter-data-jpa", version.ref = "spring-boot" }
+mysql-connector = { module = "com.mysql:mysql-connector-j", version.ref = "mysql-connector" }
 spring-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers", version.ref = "spring-boot" }
 testcontainers-core = { module = "org.testcontainers:testcontainers", version.ref = "testcontainers" }
 testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
 testcontainers-mongodb = { module = "org.testcontainers:mongodb", version.ref = "testcontainers" }
+testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
 
 [plugins]
 checkstyle = { id = "checkstyle" }
