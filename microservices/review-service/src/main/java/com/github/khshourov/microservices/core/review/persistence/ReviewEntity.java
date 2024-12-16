@@ -2,10 +2,10 @@ package com.github.khshourov.microservices.core.review.persistence;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Version;
+import jakarta.persistence.Version;
 
 @Entity
 @Table(
@@ -26,16 +26,7 @@ public class ReviewEntity {
 
   public ReviewEntity() {}
 
-  public ReviewEntity(
-      int id,
-      int version,
-      int productId,
-      int reviewId,
-      String author,
-      String subject,
-      String content) {
-    this.id = id;
-    this.version = version;
+  public ReviewEntity(int productId, int reviewId, String author, String subject, String content) {
     this.productId = productId;
     this.reviewId = reviewId;
     this.author = author;

@@ -1,6 +1,11 @@
 server.port: 7003
 server.error.include-message: always
 
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
 logging:
   level:
     root: INFO
