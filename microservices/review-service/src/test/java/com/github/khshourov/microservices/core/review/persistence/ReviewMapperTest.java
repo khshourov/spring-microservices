@@ -62,7 +62,7 @@ public class ReviewMapperTest {
     List<ReviewEntity> entities =
         Collections.singletonList(new ReviewEntity(1, 1, "a1", "s1", "c1"));
 
-    List<Review> reviews = mapper.entityListToReviewList(entities);
+    List<Review> reviews = mapper.entityListToApiList(entities);
 
     assertEquals(entities.size(), reviews.size());
 

@@ -12,9 +12,10 @@ public interface ReviewMapper {
   ReviewEntity apiToEntity(Review api);
 
   @Mapping(target = "serviceAddress", ignore = true)
+  @Mapping(target = "updateServiceAddress", ignore = true)
   Review entityToApi(ReviewEntity entity);
 
   List<ReviewEntity> apiListToEntityList(List<Review> reviews);
 
-  List<Review> entityListToReviewList(List<ReviewEntity> entities);
+  List<Review> entityListToApiList(List<ReviewEntity> entities);
 }
