@@ -30,6 +30,16 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
   }
 
   @Override
+  public ProductAggregate createProduct(ProductAggregate request) {
+    return null;
+  }
+
+  @Override
+  public void deleteProduct(int productId) {
+
+  }
+
+  @Override
   public ProductAggregate getProduct(int productId) {
     Product product = integration.getProduct(productId);
     if (product == null) {
