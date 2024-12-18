@@ -5,12 +5,17 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpStatus.UNPROCESSABLE_ENTITY;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static reactor.core.publisher.Mono.just;
 
+import com.github.khshourov.microservices.api.composite.product.ProductAggregate;
+import com.github.khshourov.microservices.api.composite.product.RecommendationSummary;
+import com.github.khshourov.microservices.api.composite.product.ReviewSummary;
 import com.github.khshourov.microservices.api.core.product.Product;
 import com.github.khshourov.microservices.api.core.recommendation.Recommendation;
 import com.github.khshourov.microservices.api.core.review.Review;
 import com.github.khshourov.microservices.api.exceptions.InvalidInputException;
 import com.github.khshourov.microservices.api.exceptions.NotFoundException;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,6 +50,39 @@ class ProductCompositeServiceApplicationTest {
 
     when(compositeIntegration.getProduct(PRODUCT_ID_INVALID))
         .thenThrow(new InvalidInputException("INVALID: " + PRODUCT_ID_INVALID));
+  }
+
+  @Test
+  void createProductWithoutRecommendationAndReviewInformation() {
+    ProductAggregate aggregate = new ProductAggregate(1, "p1", 1, null, null, null);
+
+    client
+        .post()
+        .uri("/composite/product")
+        .body(just(aggregate), ProductAggregate.class)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus();
+  }
+
+  @Test
+  void createProductWithRecommendationsAndReviews() {
+    ProductAggregate aggregate =
+        new ProductAggregate(
+            1,
+            "p1",
+            1,
+            List.of(new RecommendationSummary(1, "a1", 1, "c1")),
+            List.of(new ReviewSummary(1, "a1", "s1", "c1")),
+            null);
+
+    client
+        .post()
+        .uri("/composite/product")
+        .body(just(aggregate), ProductAggregate.class)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus();
   }
 
   @Test
