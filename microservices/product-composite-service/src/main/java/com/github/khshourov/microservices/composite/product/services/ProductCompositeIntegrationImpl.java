@@ -62,13 +62,46 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
   }
 
   @Override
+  public Product createProduct(Product request) {
+    try {
+      String url =
+          String.format("http://%s:%d/product", this.productServiceHost, this.reviewServicePort);
+      log.debug("Calling Product api: POST {}", url);
+
+      Product product = this.restTemplate.postForObject(url, request, Product.class);
+      assert product != null;
+      log.debug("Created a product with id: {}", product.productId());
+
+      return product;
+    } catch (HttpClientErrorException exception) {
+      throw handleHttpClientException(exception);
+    }
+  }
+
+  @Override
+  public void deleteProduct(int productId) {
+    try {
+      String url =
+          String.format(
+              "http://%s:%d/product/%d",
+              this.productServiceHost, this.productServicePort, productId);
+
+      log.debug("Calling Product api: DELETE {}", url);
+
+      this.restTemplate.delete(url);
+    } catch (HttpClientErrorException exception) {
+      throw handleHttpClientException(exception);
+    }
+  }
+
+  @Override
   public Product getProduct(int productId) {
     try {
       String url =
           String.format(
               "http://%s:%d/product/%d",
               this.productServiceHost, this.productServicePort, productId);
-      log.debug("Calling Product api: {}", url);
+      log.debug("Calling Product api: GET {}", url);
 
       Product product = this.restTemplate.getForObject(url, Product.class);
 
@@ -77,19 +110,44 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
 
       return product;
     } catch (HttpClientErrorException exception) {
-      switch (HttpStatus.resolve(exception.getStatusCode().value())) {
-        case NOT_FOUND -> throw new NotFoundException(getErrorMessage(exception));
-        case UNPROCESSABLE_ENTITY -> throw new InvalidInputException(getErrorMessage(exception));
-        case null -> {}
-        default -> {
-          log.warn("Got an unexpected HTTP error: {}, will rethrow it", exception.getStatusCode());
-          log.warn("Error body: {}", exception.getResponseBodyAsString());
-          throw exception;
-        }
-      }
+      throw this.handleHttpClientException(exception);
     }
+  }
 
-    return null;
+  @Override
+  public Recommendation createRecommendation(Recommendation request) {
+    try {
+      String url =
+          String.format(
+              "http://%s:%d/recommendation",
+              this.recommendationServiceHost, this.recommendationServicePort);
+      log.debug("Calling Recommendation api: POST {}", url);
+
+      Recommendation recommendation =
+          this.restTemplate.postForObject(url, request, Recommendation.class);
+      assert recommendation != null;
+      log.debug("Created a recommendation with id: {}", recommendation.recommendationId());
+
+      return recommendation;
+    } catch (HttpClientErrorException exception) {
+      throw handleHttpClientException(exception);
+    }
+  }
+
+  @Override
+  public void deleteRecommendations(int productId) {
+    try {
+      String url =
+          String.format(
+              "http://%s:%d/recommendations?productId=%d",
+              this.recommendationServiceHost, this.recommendationServicePort, productId);
+
+      log.debug("Calling Recommendation api: DELETE {}", url);
+
+      this.restTemplate.delete(url);
+    } catch (HttpClientErrorException exception) {
+      throw handleHttpClientException(exception);
+    }
   }
 
   @Override
@@ -99,7 +157,7 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
           String.format(
               "http://%s:%d/recommendations?productId=%d",
               this.recommendationServiceHost, this.recommendationServicePort, productId);
-      log.debug("Calling Recommendation api: {}", url);
+      log.debug("Calling Recommendation api: GET {}", url);
 
       List<Recommendation> recommendations =
           this.restTemplate
@@ -116,6 +174,39 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
           "Got an exception while requesting recommendations, return zero recommendations: {}",
           exception.getMessage());
       return List.of();
+    }
+  }
+
+  @Override
+  public Review createReview(Review request) {
+    try {
+      String url =
+          String.format("http://%s:%d/review", this.reviewServiceHost, this.reviewServicePort);
+      log.debug("Calling Review api: POST {}", url);
+
+      Review review = this.restTemplate.postForObject(url, request, Review.class);
+      assert review != null;
+      log.debug("Created a review with id: {}", review.reviewId());
+
+      return review;
+    } catch (HttpClientErrorException exception) {
+      throw handleHttpClientException(exception);
+    }
+  }
+
+  @Override
+  public void deleteReviews(int productId) {
+    try {
+      String url =
+          String.format(
+              "http://%s:%d/reviews?productId=%d",
+              this.reviewServiceHost, this.reviewServicePort, productId);
+
+      log.debug("Calling Review api: DELETE {}", url);
+
+      this.restTemplate.delete(url);
+    } catch (HttpClientErrorException exception) {
+      throw handleHttpClientException(exception);
     }
   }
 
@@ -142,6 +233,25 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
           "Got an exception while requesting reviews, return zero reviews: {}",
           exception.getMessage());
       return List.of();
+    }
+  }
+
+  private RuntimeException handleHttpClientException(HttpClientErrorException exception) {
+    switch (HttpStatus.resolve(exception.getStatusCode().value())) {
+      case NOT_FOUND -> {
+        return new NotFoundException(getErrorMessage(exception));
+      }
+      case UNPROCESSABLE_ENTITY -> {
+        return new InvalidInputException(getErrorMessage(exception));
+      }
+      case null -> {
+        return exception;
+      }
+      default -> {
+        log.warn("Got an unexpected HTTP error: {}, will rethrow it", exception.getStatusCode());
+        log.warn("Error body: {}", exception.getMessage());
+        return exception;
+      }
     }
   }
 
