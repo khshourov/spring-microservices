@@ -28,7 +28,7 @@ public interface ProductCompositeService {
       value = "/composite/product",
       consumes = "application/json",
       produces = "application/json")
-  ProductAggregate createProduct(@RequestBody ProductAggregate request);
+  void createProduct(@RequestBody ProductAggregate request);
 
   @Operation(
       summary = "${api.product-composite.delete-composite-product.description}",
