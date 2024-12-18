@@ -15,20 +15,33 @@ public interface ProductCompositeService {
   @Operation(
       summary = "${api.product-composite.create-composite-product.description}",
       description = "${api.product-composite.create-composite-product.notes}")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
-      @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
-  })
-  @PostMapping(value = "/composite/product", consumes = "application/json", produces = "application/json")
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "400",
+            description = "${api.responseCodes.badRequest.description}"),
+        @ApiResponse(
+            responseCode = "422",
+            description = "${api.responseCodes.unprocessableEntity.description}")
+      })
+  @PostMapping(
+      value = "/composite/product",
+      consumes = "application/json",
+      produces = "application/json")
   ProductAggregate createProduct(@RequestBody ProductAggregate request);
 
   @Operation(
       summary = "${api.product-composite.delete-composite-product.description}",
       description = "${api.product-composite.delete-composite-product.notes}")
-  @ApiResponses(value = {
-      @ApiResponse(responseCode = "400", description = "${api.responseCodes.badRequest.description}"),
-      @ApiResponse(responseCode = "422", description = "${api.responseCodes.unprocessableEntity.description}")
-  })
+  @ApiResponses(
+      value = {
+        @ApiResponse(
+            responseCode = "400",
+            description = "${api.responseCodes.badRequest.description}"),
+        @ApiResponse(
+            responseCode = "422",
+            description = "${api.responseCodes.unprocessableEntity.description}")
+      })
   @DeleteMapping(value = "/composite/product/{productId}", produces = "application/json")
   void deleteProduct(@PathVariable int productId);
 

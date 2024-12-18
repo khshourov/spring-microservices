@@ -35,9 +35,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
   }
 
   @Override
-  public void deleteProduct(int productId) {
-
-  }
+  public void deleteProduct(int productId) {}
 
   @Override
   public ProductAggregate getProduct(int productId) {
