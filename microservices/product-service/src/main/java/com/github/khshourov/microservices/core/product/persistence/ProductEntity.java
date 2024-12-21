@@ -84,4 +84,17 @@ public class ProductEntity {
         + this.weight
         + "]";
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (!(o instanceof ProductEntity other)) {
+      return false;
+    }
+
+    return this.id.equals(other.id)
+        && this.version.equals(other.version)
+        && this.productId == other.productId
+        && this.name.equals(other.name)
+        && this.weight == other.weight;
+  }
 }

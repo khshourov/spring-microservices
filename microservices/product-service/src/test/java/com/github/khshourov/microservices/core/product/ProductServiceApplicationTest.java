@@ -1,6 +1,5 @@
 package com.github.khshourov.microservices.core.product;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static reactor.core.publisher.Mono.just;
 
@@ -15,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import reactor.test.StepVerifier;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 class ProductServiceApplicationTest extends MongoDbTestBase {
@@ -25,7 +25,7 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
 
   @BeforeEach
   void init() {
-    repository.deleteAll();
+    repository.deleteAll().block();
   }
 
   @Test
@@ -46,13 +46,15 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
         .jsonPath("$.productId")
         .isEqualTo(uniqueProduct.productId());
 
-    assertTrue(repository.findByProductId(uniqueProduct.productId()).isPresent());
+    StepVerifier.create(repository.findByProductId(uniqueProduct.productId()))
+        .expectNextCount(1)
+        .verifyComplete();
   }
 
   @Test
   void errorShouldBeThrownForDuplicateProductId() {
     Product duplicateProduct = new Product(existingEntity.getProductId(), "Product 1", 1, "SA");
-    repository.save(existingEntity);
+    repository.save(existingEntity).block();
 
     client
         .post()
@@ -73,7 +75,7 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
 
   @Test
   void sameEntityCanBeDeletedMultipleTimes() {
-    repository.save(existingEntity);
+    repository.save(existingEntity).block();
 
     client
         .delete()
@@ -83,7 +85,9 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
         .expectStatus()
         .isOk();
 
-    assertTrue(repository.findByProductId(existingEntity.getProductId()).isEmpty());
+    StepVerifier.create(repository.findByProductId(existingEntity.getProductId()))
+        .expectNextCount(0)
+        .verifyComplete();
 
     client
         .delete()
@@ -96,7 +100,7 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
 
   @Test
   void getProductForValidId() {
-    repository.save(existingEntity);
+    repository.save(existingEntity).block();
     int validProductId = existingEntity.getProductId();
 
     client
@@ -112,7 +116,9 @@ class ProductServiceApplicationTest extends MongoDbTestBase {
         .jsonPath("$.productId")
         .isEqualTo(validProductId);
 
-    assertTrue(repository.findByProductId(validProductId).isPresent());
+    StepVerifier.create(repository.findByProductId(validProductId))
+        .expectNextCount(1)
+        .verifyComplete();
   }
 
   @Test

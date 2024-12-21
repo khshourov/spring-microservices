@@ -1,9 +1,5 @@
 package com.github.khshourov.microservices.core.product.persistence;
 
-import static com.github.khshourov.microservices.core.product.testlib.Asserts.assertProductEntity;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.github.khshourov.microservices.core.product.testlib.MongoDbTestBase;
@@ -14,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.OptimisticLockingFailureException;
+import reactor.test.StepVerifier;
 
 @DataMongoTest
 class ProductEntityTest extends MongoDbTestBase {
@@ -23,55 +20,65 @@ class ProductEntityTest extends MongoDbTestBase {
 
   @BeforeEach
   void init() {
-    repository.deleteAll();
+    StepVerifier.create(repository.deleteAll()).verifyComplete();
 
     ProductEntity productEntity = new ProductEntity(1, "Product 1", 1);
-    savedEntity = repository.save(productEntity);
-
-    assertProductEntity(productEntity, savedEntity);
+    StepVerifier.create(repository.save(productEntity))
+        .expectNextMatches(
+            dbEntity -> {
+              savedEntity = dbEntity;
+              return savedEntity.equals(productEntity);
+            })
+        .verifyComplete();
   }
 
   @Test
   void create() {
     ProductEntity newEntity = new ProductEntity(2, "Product 2", 2);
-    repository.save(newEntity);
+    StepVerifier.create(repository.save(newEntity))
+        .expectNextMatches(dbEntity -> newEntity.getProductId() == dbEntity.getProductId())
+        .verifyComplete();
 
-    Optional<ProductEntity> dbEntity = repository.findById(newEntity.getId());
-
-    assertTrue(dbEntity.isPresent());
-    assertProductEntity(newEntity, dbEntity.get());
+    StepVerifier.create(repository.findById(newEntity.getId()))
+        .expectNextMatches(newEntity::equals)
+        .verifyComplete();
   }
 
   @Test
   void update() {
     savedEntity.setName("Product 1-prime");
-    repository.save(savedEntity);
+    StepVerifier.create(repository.save(savedEntity))
+        .expectNextMatches(dbEntity -> "Product 1-prime".equals(dbEntity.getName()))
+        .verifyComplete();
 
-    Optional<ProductEntity> dbEntity = repository.findById(savedEntity.getId());
-
-    assertTrue(dbEntity.isPresent());
-    assertEquals(1, dbEntity.get().getVersion());
-    assertEquals("Product 1-prime", dbEntity.get().getName());
+    StepVerifier.create(repository.findById(savedEntity.getId()))
+        .expectNextMatches(
+            dbEntity -> dbEntity.getVersion() == 1 && "Product 1-prime".equals(dbEntity.getName()))
+        .verifyComplete();
   }
 
   @Test
   void delete() {
-    repository.delete(savedEntity);
+    StepVerifier.create(repository.delete(savedEntity)).verifyComplete();
 
-    assertFalse(repository.findById(savedEntity.getId()).isPresent());
+    StepVerifier.create(repository.existsById(savedEntity.getId()))
+        .expectNext(false)
+        .verifyComplete();
   }
 
   @Test
   void productIdCanNotBeDuplicate() {
     ProductEntity duplicateEntity = new ProductEntity(savedEntity.getProductId(), "Product 3", 3);
 
-    assertThrows(DuplicateKeyException.class, () -> repository.save(duplicateEntity));
+    StepVerifier.create(repository.save(duplicateEntity))
+        .expectError(DuplicateKeyException.class)
+        .verify();
   }
 
   @Test
   void updatedEntityNeedsToBeFresh() {
-    Optional<ProductEntity> dbEntity1 = repository.findById(savedEntity.getId());
-    Optional<ProductEntity> dbEntity2 = repository.findById(savedEntity.getId());
+    Optional<ProductEntity> dbEntity1 = repository.findById(savedEntity.getId()).blockOptional();
+    Optional<ProductEntity> dbEntity2 = repository.findById(savedEntity.getId()).blockOptional();
 
     assertTrue(dbEntity1.isPresent());
     assertTrue(dbEntity2.isPresent());
@@ -80,14 +87,16 @@ class ProductEntityTest extends MongoDbTestBase {
     ProductEntity entity2 = dbEntity2.get();
 
     entity1.setName("Product 1-prime");
-    repository.save(entity1);
+    repository.save(entity1).block();
 
     entity2.setName("Product 2-prime");
-    assertThrows(OptimisticLockingFailureException.class, () -> repository.save(entity2));
+    StepVerifier.create(repository.save(entity2))
+        .expectError(OptimisticLockingFailureException.class)
+        .verify();
 
-    Optional<ProductEntity> entity = repository.findById(savedEntity.getId());
-    assertTrue(entity.isPresent());
-    assertEquals(1, entity.get().getVersion());
-    assertEquals("Product 1-prime", entity.get().getName());
+    StepVerifier.create(repository.findById(savedEntity.getId()))
+        .expectNextMatches(
+            entity -> entity.getVersion() == 1 && "Product 1-prime".equals(entity.getName()))
+        .verifyComplete();
   }
 }
