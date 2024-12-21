@@ -2,6 +2,7 @@ package com.github.khshourov.microservices.core.recommendation.persistence;
 
 import static com.github.khshourov.microservices.core.recommendation.testlib.Asserts.assertRecommendationEntity;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.github.khshourov.microservices.core.recommendation.testlib.MongoDbTestBase;
 import java.util.List;
@@ -18,18 +19,20 @@ public class RecommendationRepositoryTest extends MongoDbTestBase {
 
   @BeforeEach
   void init() {
-    repository.deleteAll();
+    repository.deleteAll().block();
 
     RecommendationEntity entity = new RecommendationEntity(1, 1, "Author 1", 1, "Content 1");
-    savedEntity = repository.save(entity);
+    savedEntity = repository.save(entity).block();
 
+    assertNotNull(savedEntity);
     assertRecommendationEntity(entity, savedEntity);
   }
 
   @Test
   void getEntityByProductId() {
-    List<RecommendationEntity> dbEntity = repository.findByProductId(1);
+    List<RecommendationEntity> dbEntity = repository.findByProductId(1).collectList().block();
 
+    assertNotNull(dbEntity);
     assertEquals(1, dbEntity.size());
     assertRecommendationEntity(savedEntity, dbEntity.getFirst());
   }

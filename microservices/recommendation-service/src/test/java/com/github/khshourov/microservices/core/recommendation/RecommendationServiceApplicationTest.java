@@ -1,5 +1,6 @@
 package com.github.khshourov.microservices.core.recommendation;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static reactor.core.publisher.Mono.just;
@@ -25,7 +26,7 @@ class RecommendationServiceApplicationTest extends MongoDbTestBase {
 
   @BeforeEach
   void init() {
-    repository.deleteAll();
+    repository.deleteAll().block();
   }
 
   @Test
@@ -51,7 +52,7 @@ class RecommendationServiceApplicationTest extends MongoDbTestBase {
 
   @Test
   void creationFailedWithDuplicationCombinationOfProductIdAndRecommendationId() {
-    repository.save(new RecommendationEntity(1, 1, "a1", 1, "c1"));
+    repository.save(new RecommendationEntity(1, 1, "a1", 1, "c1")).block();
     Recommendation recommendation = new Recommendation(1, 1, "a1", 1, "c1", "sa");
 
     client
@@ -72,12 +73,15 @@ class RecommendationServiceApplicationTest extends MongoDbTestBase {
   @Test
   void deleteRecommendationsForValidProductId() {
     int validProductId = 1;
-    repository.saveAll(
-        List.of(
-            new RecommendationEntity(validProductId, 1, "a1", 1, "c1"),
-            new RecommendationEntity(validProductId, 2, "a2", 2, "c2"),
-            new RecommendationEntity(validProductId, 3, "a3", 3, "c3"),
-            new RecommendationEntity(validProductId, 4, "a4", 4, "c4")));
+    repository
+        .saveAll(
+            List.of(
+                new RecommendationEntity(validProductId, 1, "a1", 1, "c1"),
+                new RecommendationEntity(validProductId, 2, "a2", 2, "c2"),
+                new RecommendationEntity(validProductId, 3, "a3", 3, "c3"),
+                new RecommendationEntity(validProductId, 4, "a4", 4, "c4")))
+        .collectList()
+        .block();
 
     client
         .delete()
@@ -87,7 +91,9 @@ class RecommendationServiceApplicationTest extends MongoDbTestBase {
         .expectStatus()
         .isOk();
 
-    List<RecommendationEntity> entities = this.repository.findByProductId(validProductId);
+    List<RecommendationEntity> entities =
+        this.repository.findByProductId(validProductId).collectList().block();
+    assertNotNull(entities);
     assertTrue(entities.isEmpty());
 
     // DELETE should be idempotent
@@ -103,12 +109,15 @@ class RecommendationServiceApplicationTest extends MongoDbTestBase {
   @Test
   void getRecommendationsForValidProductId() {
     int validProductId = 1;
-    repository.saveAll(
-        List.of(
-            new RecommendationEntity(validProductId, 1, "a1", 1, "c1"),
-            new RecommendationEntity(validProductId, 2, "a2", 2, "c2"),
-            new RecommendationEntity(validProductId, 3, "a3", 3, "c3"),
-            new RecommendationEntity(validProductId, 4, "a4", 4, "c4")));
+    repository
+        .saveAll(
+            List.of(
+                new RecommendationEntity(validProductId, 1, "a1", 1, "c1"),
+                new RecommendationEntity(validProductId, 2, "a2", 2, "c2"),
+                new RecommendationEntity(validProductId, 3, "a3", 3, "c3"),
+                new RecommendationEntity(validProductId, 4, "a4", 4, "c4")))
+        .collectList()
+        .block();
 
     client
         .get()
