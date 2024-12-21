@@ -61,14 +61,13 @@ public class ReviewServiceImpl implements ReviewService {
   public Mono<Void> deleteReviews(int productId) {
     log.debug("DELETE /reviews?productId={}", productId);
 
-    return Mono.fromCallable(() -> this.internalDeleteReviews(productId))
+    return Mono.fromRunnable(() -> this.internalDeleteReviews(productId))
         .subscribeOn(this.jdbcScheduler)
         .then();
   }
 
-  private Mono<Void> internalDeleteReviews(int productId) {
+  private void internalDeleteReviews(int productId) {
     this.repository.deleteAll(this.repository.findByProductId(productId));
-    return Mono.empty();
   }
 
   @Override
