@@ -11,13 +11,16 @@ import com.github.khshourov.microservices.api.core.review.Review;
 import com.github.khshourov.microservices.api.exceptions.NotFoundException;
 import com.github.khshourov.microservices.composite.product.ProductCompositeIntegration;
 import com.github.khshourov.microservices.util.http.ServiceUtil;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 @RestController
 public class ProductCompositeServiceImpl implements ProductCompositeService {
@@ -34,43 +37,51 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
   }
 
   @Override
-  public void createProduct(ProductAggregate request) {
+  public Mono<Void> createProduct(ProductAggregate request) {
     try {
       log.debug(
           "createCompositeProduct: creating a new composite entity for product-id: {}",
           request.productId());
 
+      List<Mono<?>> monoList = new ArrayList<>();
+
       Product product = new Product(request.productId(), request.name(), request.weight(), null);
-      this.integration.createProduct(product);
+      monoList.add(this.integration.createProduct(product));
 
       Optional.ofNullable(request.recommendations())
           .orElse(Collections.emptyList())
           .forEach(
               recommendationSummary ->
-                  this.integration.createRecommendation(
-                      new Recommendation(
-                          request.productId(),
-                          recommendationSummary.recommendationId(),
-                          recommendationSummary.author(),
-                          recommendationSummary.rate(),
-                          recommendationSummary.content(),
-                          null)));
+                  monoList.add(
+                      this.integration.createRecommendation(
+                          new Recommendation(
+                              request.productId(),
+                              recommendationSummary.recommendationId(),
+                              recommendationSummary.author(),
+                              recommendationSummary.rate(),
+                              recommendationSummary.content(),
+                              null))));
 
       Optional.ofNullable(request.reviews())
           .orElse(Collections.emptyList())
           .forEach(
               reviewSummary ->
-                  this.integration.createReview(
-                      new Review(
-                          request.productId(),
-                          reviewSummary.reviewId(),
-                          reviewSummary.author(),
-                          reviewSummary.subject(),
-                          reviewSummary.content(),
-                          null)));
+                  monoList.add(
+                      this.integration.createReview(
+                          new Review(
+                              request.productId(),
+                              reviewSummary.reviewId(),
+                              reviewSummary.author(),
+                              reviewSummary.subject(),
+                              reviewSummary.content(),
+                              null))));
       log.debug(
           "createCompositeProduct: created a new composite entity for product-id: {}",
           request.productId());
+
+      return Mono.zip(r -> "", monoList.toArray(new Mono[0]))
+          .doOnError(ex -> log.warn("createCompositeProduct failed: {}", ex.toString()))
+          .then();
     } catch (RuntimeException e) {
       log.warn(
           "createCompositeProduct: Exception when creating composite product: {}", e.getMessage());
@@ -79,28 +90,49 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
   }
 
   @Override
-  public void deleteProduct(int productId) {
+  public Mono<Void> deleteProduct(int productId) {
     log.debug("deleteCompositeProduct: deleting composite entity for product-id: {}", productId);
 
-    this.integration.deleteProduct(productId);
-    this.integration.deleteRecommendations(productId);
-    this.integration.deleteReviews(productId);
-
-    log.debug("deleteCompositeProduct: deleted composite entity for product-id: {}", productId);
-  }
-
-  @Override
-  public ProductAggregate getProduct(int productId) {
-    Product product = integration.getProduct(productId);
-    if (product == null) {
-      throw new NotFoundException("No product found for productId: " + productId);
+    try {
+      return Mono.zip(
+              r -> "",
+              this.integration.deleteProduct(productId),
+              this.integration.deleteReviews(productId),
+              this.integration.deleteRecommendations(productId))
+          .doOnError(e -> log.warn(e.getMessage()))
+          .log(log.getName(), Level.FINE)
+          .then();
+    } catch (RuntimeException e) {
+      log.warn("deleteCompositeProduct failed: {}", e.toString());
     }
 
-    List<Recommendation> recommendations = integration.getRecommendations(productId);
-    List<Review> reviews = integration.getReviews(productId);
+    return Mono.empty();
+  }
 
-    return createProductAggregate(
-        product, recommendations, reviews, serviceUtil.getServiceAddress());
+  @SuppressWarnings({"unchecked"})
+  @Override
+  public Mono<ProductAggregate> getProduct(int productId) {
+    return Mono.zip(
+            values -> {
+              if (values.length != 3) {
+                throw new RuntimeException(
+                    "Expected 3 values, but got " + values.length + " values.");
+              }
+              if (values[0] == null) {
+                throw new NotFoundException("No product found for productId: " + productId);
+              }
+
+              return this.createProductAggregate(
+                  (Product) values[0],
+                  (List<Recommendation>) values[1],
+                  (List<Review>) values[2],
+                  serviceUtil.getServiceAddress());
+            },
+            this.integration.getProduct(productId),
+            this.integration.getRecommendations(productId).collectList(),
+            this.integration.getReviews(productId).collectList())
+        .doOnError(ex -> log.warn("getCompositeProduct failed: {}", ex.toString()))
+        .log(log.getName(), Level.FINE);
   }
 
   private ProductAggregate createProductAggregate(

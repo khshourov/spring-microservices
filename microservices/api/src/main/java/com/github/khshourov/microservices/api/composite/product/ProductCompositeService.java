@@ -4,11 +4,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import reactor.core.publisher.Mono;
 
 @Tag(name = "ProductComposite", description = "REST API for composite product information.")
 public interface ProductCompositeService {
@@ -28,7 +31,7 @@ public interface ProductCompositeService {
       value = "/composite/product",
       consumes = "application/json",
       produces = "application/json")
-  void createProduct(@RequestBody ProductAggregate request);
+  Mono<Void> createProduct(@RequestBody ProductAggregate request);
 
   @Operation(
       summary = "${api.product-composite.delete-composite-product.description}",
@@ -42,8 +45,9 @@ public interface ProductCompositeService {
             responseCode = "422",
             description = "${api.responseCodes.unprocessableEntity.description}")
       })
+  @ResponseStatus(code = HttpStatus.ACCEPTED)
   @DeleteMapping(value = "/composite/product/{productId}", produces = "application/json")
-  void deleteProduct(@PathVariable int productId);
+  Mono<Void> deleteProduct(@PathVariable int productId);
 
   @Operation(
       summary = "${api.product-composite.get-composite-product.description}",
@@ -62,5 +66,5 @@ public interface ProductCompositeService {
             description = "${api.responseCodes.unprocessableEntity.description}")
       })
   @GetMapping(value = "/composite/product/{productId}", produces = "application/json")
-  ProductAggregate getProduct(@PathVariable int productId);
+  Mono<ProductAggregate> getProduct(@PathVariable int productId);
 }

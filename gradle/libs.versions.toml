@@ -11,6 +11,7 @@ spring-openapi = "2.7.0"
 mapstruct = "1.6.3"
 testcontainers = "1.20.4"
 mysql-connector = "9.1.0"
+spring-cloud = "2024.0.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
