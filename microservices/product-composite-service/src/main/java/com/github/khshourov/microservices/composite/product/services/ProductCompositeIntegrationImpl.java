@@ -1,5 +1,6 @@
 package com.github.khshourov.microservices.composite.product.services;
 
+import static java.util.logging.Level.FINE;
 import static reactor.core.publisher.Flux.empty;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -13,12 +14,12 @@ import com.github.khshourov.microservices.composite.product.ProductCompositeInte
 import com.github.khshourov.microservices.util.http.HttpErrorInfo;
 import java.io.IOException;
 import java.util.Optional;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.Message;
@@ -108,7 +109,7 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
         .uri(url)
         .retrieve()
         .bodyToMono(Product.class)
-        .log(log.getName(), Level.FINE)
+        .log(log.getName(), FINE)
         .onErrorMap(WebClientResponseException.class, this::handleHttpClientException);
   }
 
@@ -147,7 +148,7 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
         .uri(url)
         .retrieve()
         .bodyToFlux(Recommendation.class)
-        .log(log.getName(), Level.FINE)
+        .log(log.getName(), FINE)
         .onErrorResume(e -> empty());
   }
 
@@ -185,9 +186,40 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
         .uri(url)
         .retrieve()
         .bodyToFlux(Review.class)
-        .log(log.getName(), Level.FINE)
+        .log(log.getName(), FINE)
         .subscribeOn(this.publishEventScheduler)
         .onErrorResume(e -> empty());
+  }
+
+  public Mono<Health> getProductHealth() {
+    String baseUrl =
+        String.format("http://%s:%d", this.productServiceHost, this.productServicePort);
+    return getHealth(baseUrl);
+  }
+
+  public Mono<Health> getRecommendationHealth() {
+    String baseUrl =
+        String.format(
+            "http://%s:%d", this.recommendationServiceHost, this.recommendationServicePort);
+    return getHealth(baseUrl);
+  }
+
+  public Mono<Health> getReviewHealth() {
+    String baseUrl = String.format("http://%s:%d", this.reviewServiceHost, this.reviewServicePort);
+    return getHealth(baseUrl);
+  }
+
+  private Mono<Health> getHealth(String url) {
+    url += "/actuator/health";
+    log.debug("Will call the Health API on URL: {}", url);
+    return webClient
+        .get()
+        .uri(url)
+        .retrieve()
+        .bodyToMono(String.class)
+        .map(s -> new Health.Builder().up().build())
+        .onErrorResume(ex -> Mono.just(new Health.Builder().down(ex).build()))
+        .log(log.getName(), FINE);
   }
 
   private <K, D> void sendEvent(String channel, Event<K, D> event) {
