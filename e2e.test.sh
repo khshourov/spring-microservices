@@ -90,13 +90,13 @@ function testCompositeCreated() {
     fi
 
     set +e
-    assertEqual "$PROD_ID_REVS_RECS" "$(echo $RESPONSE | jq .productId)"
+    assertEqual "$PROD_ID_REVS_RECS" "$(echo "$RESPONSE" | jq .productId)"
     if [ "$?" -eq "1" ] ; then return 1; fi
 
-    assertEqual 3 "$(echo $RESPONSE | jq ".recommendations | length")"
+    assertEqual 3 "$(echo "$RESPONSE" | jq ".recommendations | length")"
     if [ "$?" -eq "1" ] ; then return 1; fi
 
-    assertEqual 3 "$(echo $RESPONSE | jq ".reviews | length")"
+    assertEqual 3 "$(echo "$RESPONSE" | jq ".reviews | length")"
     if [ "$?" -eq "1" ] ; then return 1; fi
 
     set -e
