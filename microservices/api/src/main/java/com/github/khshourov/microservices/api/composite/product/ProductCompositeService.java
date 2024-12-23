@@ -31,6 +31,7 @@ public interface ProductCompositeService {
       value = "/composite/product",
       consumes = "application/json",
       produces = "application/json")
+  @ResponseStatus(code = HttpStatus.ACCEPTED)
   Mono<Void> createProduct(@RequestBody ProductAggregate request);
 
   @Operation(
