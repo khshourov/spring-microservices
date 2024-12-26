@@ -35,6 +35,7 @@ dependencies {
     implementation libs.spring.data.mongodb
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka'
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     compileOnly libs.mapstruct.annotation.processor
     annotationProcessor libs.mapstruct.annotation.processor

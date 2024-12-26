@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@SpringBootTest(properties = {"eureka.client.enabled=false"})
 class MessageProcessorConfigTest extends MySqlTestBase {
   @Autowired
   @Qualifier("messageProcessor") private Consumer<Event<Integer, Review>> eventConsumer;

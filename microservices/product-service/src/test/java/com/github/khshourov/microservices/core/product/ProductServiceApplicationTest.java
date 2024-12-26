@@ -16,7 +16,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.test.StepVerifier;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = RANDOM_PORT,
+    properties = {"eureka.client.enabled=false"})
 class ProductServiceApplicationTest extends MongoDbTestBase {
   @Autowired private WebTestClient client;
   @Autowired private ProductRepository repository;

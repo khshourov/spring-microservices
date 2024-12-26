@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.http.HttpStatus;
@@ -40,40 +39,20 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
   private final StreamBridge streamBridge;
   private final Scheduler publishEventScheduler;
 
-  private final String productServiceHost;
-  private final int productServicePort;
-
-  private final String recommendationServiceHost;
-  private final int recommendationServicePort;
-
-  private final String reviewServiceHost;
-  private final int reviewServicePort;
+  private static final String PRODUCT_BASE_URL = "http://product";
+  private static final String RECOMMENDATION_BASE_URL = "http://recommendation";
+  private static final String REVIEW_BASE_URL = "http://review";
 
   @Autowired
   public ProductCompositeIntegrationImpl(
       WebClient.Builder webClientBuilder,
       ObjectMapper objectMapper,
       StreamBridge streamBridge,
-      @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
-      @Value("${app.product-service.host}") String productServiceHost,
-      @Value("${app.product-service.port}") int productServicePort,
-      @Value("${app.recommendation-service.host}") String recommendationServiceHost,
-      @Value("${app.recommendation-service.port}") int recommendationServicePort,
-      @Value("${app.review-service.host}") String reviewServiceHost,
-      @Value("${app.review-service.port}") int reviewServicePort) {
+      @Qualifier("publishEventScheduler") Scheduler publishEventScheduler) {
     this.webClient = webClientBuilder.build();
     this.objectMapper = objectMapper;
     this.streamBridge = streamBridge;
     this.publishEventScheduler = publishEventScheduler;
-
-    this.productServiceHost = productServiceHost;
-    this.productServicePort = productServicePort;
-
-    this.recommendationServiceHost = recommendationServiceHost;
-    this.recommendationServicePort = recommendationServicePort;
-
-    this.reviewServiceHost = reviewServiceHost;
-    this.reviewServicePort = reviewServicePort;
   }
 
   @Override
@@ -100,9 +79,7 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
 
   @Override
   public Mono<Product> getProduct(int productId) {
-    String url =
-        String.format(
-            "http://%s:%d/product/%d", this.productServiceHost, this.productServicePort, productId);
+    String url = String.format("%s/product/%d", PRODUCT_BASE_URL, productId);
 
     return this.webClient
         .get()
@@ -139,9 +116,7 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
   @Override
   public Flux<Recommendation> getRecommendations(int productId) {
     String url =
-        String.format(
-            "http://%s:%d/recommendations?productId=%d",
-            this.recommendationServiceHost, this.recommendationServicePort, productId);
+        String.format("%s/recommendations?productId=%d", RECOMMENDATION_BASE_URL, productId);
 
     return this.webClient
         .get()
@@ -176,10 +151,7 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
 
   @Override
   public Flux<Review> getReviews(int productId) {
-    String url =
-        String.format(
-            "http://%s:%d/reviews?productId=%d",
-            this.reviewServiceHost, this.reviewServicePort, productId);
+    String url = String.format("%s/reviews?productId=%d", REVIEW_BASE_URL, productId);
 
     return this.webClient
         .get()
@@ -192,21 +164,15 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
   }
 
   public Mono<Health> getProductHealth() {
-    String baseUrl =
-        String.format("http://%s:%d", this.productServiceHost, this.productServicePort);
-    return getHealth(baseUrl);
+    return getHealth(PRODUCT_BASE_URL);
   }
 
   public Mono<Health> getRecommendationHealth() {
-    String baseUrl =
-        String.format(
-            "http://%s:%d", this.recommendationServiceHost, this.recommendationServicePort);
-    return getHealth(baseUrl);
+    return getHealth(RECOMMENDATION_BASE_URL);
   }
 
   public Mono<Health> getReviewHealth() {
-    String baseUrl = String.format("http://%s:%d", this.reviewServiceHost, this.reviewServicePort);
-    return getHealth(baseUrl);
+    return getHealth(REVIEW_BASE_URL);
   }
 
   private Mono<Health> getHealth(String url) {
