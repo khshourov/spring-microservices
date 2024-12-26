@@ -11,7 +11,7 @@ spring-openapi = "2.7.0"
 mapstruct = "1.6.3"
 testcontainers = "1.20.4"
 mysql-connector = "9.1.0"
-spring-cloud = "2024.0.0"
+jaxb-runtime = "4.0.5"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -31,6 +31,7 @@ testcontainers-core = { module = "org.testcontainers:testcontainers", version.re
 testcontainers-junit = { module = "org.testcontainers:junit-jupiter", version.ref = "testcontainers" }
 testcontainers-mongodb = { module = "org.testcontainers:mongodb", version.ref = "testcontainers" }
 testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
+jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-runtime" }
 
 [plugins]
 checkstyle = { id = "checkstyle" }
