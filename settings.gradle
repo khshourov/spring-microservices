@@ -21,3 +21,4 @@ include(':microservices:review-service')
 include(':microservices:product-composite-service')
 
 include(':spring-cloud:service-discovery')
+include(':spring-cloud:gateway')

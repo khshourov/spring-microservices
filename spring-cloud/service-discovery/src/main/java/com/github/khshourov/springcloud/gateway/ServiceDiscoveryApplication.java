@@ -1,4 +1,4 @@
-package com.github.khshourov.springcloud.servicediscovery;
+package com.github.khshourov.springcloud.gateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
