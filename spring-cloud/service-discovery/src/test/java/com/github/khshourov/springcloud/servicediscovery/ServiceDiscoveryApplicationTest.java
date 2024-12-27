@@ -1,4 +1,4 @@
-package com.github.khshourov.springcloud.gateway;
+package com.github.khshourov.springcloud.servicediscovery;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;

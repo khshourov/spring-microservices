@@ -4,6 +4,8 @@ springdoc:
   packagesToScan: com.github.khshourov.microservices.composite.product
   pathsToMatch: /**
 
+server.forward-headers-strategy: framework
+
 api:
 
   common:

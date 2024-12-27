@@ -17,12 +17,12 @@ eureka:
 spring.cloud.gateway.routes:
 
   - id: product-composite
-    uri: lb://composite/product
+    uri: lb://product-composite
     predicates:
       - Path=/composite/product/**
 
   - id: product-composite-swagger-ui
-    uri: lb://composite/product
+    uri: lb://product-composite
     predicates:
       - Path=/openapi/**
 
