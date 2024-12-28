@@ -24,3 +24,6 @@ gradle-app.setting
 build
 
 .idea
+
+# Self signed certificates
+.certificates

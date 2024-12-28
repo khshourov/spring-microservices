@@ -5,7 +5,7 @@
 #   HOST=localhost PORT=7000 ./test-em-all.bash
 #
 : "${HOST=localhost}"
-: "${PORT=8080}"
+: "${PORT=8443}"
 : "${PROD_ID_REVS_RECS=1}"
 : "${PROD_ID_NOT_FOUND=13}"
 : "${PROD_ID_NO_RECS=113}"
@@ -83,7 +83,7 @@ function waitForService() {
 
 function testCompositeCreated() {
     # Expect that the Product Composite for productId $PROD_ID_REVS_RECS has been created with three recommendations and three reviews
-    if ! assertCurl 200 "curl http://$HOST:$PORT/composite/product/$PROD_ID_REVS_RECS -s"
+    if ! assertCurl 200 "curl -k https://$HOST:$PORT/composite/product/$PROD_ID_REVS_RECS -s"
     then
         echo -n "FAIL"
         return 1
@@ -128,8 +128,8 @@ function recreateComposite() {
   local productId=$1
   local composite=$2
 
-  assertCurl 202 "curl -X DELETE http://$HOST:$PORT/composite/product/${productId} -s"
-  assertEqual 202 "$(curl -X POST -s "http://$HOST:$PORT/composite/product" -H "Content-Type: application/json" --data "$composite" -w "%{http_code}")"
+  assertCurl 202 "curl -k -X DELETE https://$HOST:$PORT/composite/product/${productId} -s"
+  assertEqual 202 "$(curl -k -X POST -s "https://$HOST:$PORT/composite/product" -H "Content-Type: application/json" --data "$composite" -w "%{http_code}")"
 }
 
 function setupTestData() {
@@ -182,10 +182,10 @@ then
   docker compose up -d
 fi
 
-waitForService curl "http://$HOST:$PORT/actuator/health"
+waitForService curl -k "https://$HOST:$PORT/actuator/health"
 
 # Verify access to Eureka and that all four microservices are registered in Eureka
-assertCurl 200 "curl -H 'accept:application/json' http://$HOST:$PORT/eureka/api/apps -s"
+assertCurl 200 "curl -k -H 'accept:application/json' https://$HOST:$PORT/eureka/api/apps -s"
 assertEqual 5 "$(echo "$RESPONSE" | jq ".applications.application | length")"
 
 setupTestData
@@ -193,44 +193,44 @@ setupTestData
 waitForMessageProcessing
 
 # Verify that a normal request works, expect three recommendations and three reviews
-assertCurl 200 "curl http://$HOST:$PORT/composite/product/$PROD_ID_REVS_RECS -s"
+assertCurl 200 "curl -k https://$HOST:$PORT/composite/product/$PROD_ID_REVS_RECS -s"
 assertEqual "$PROD_ID_REVS_RECS" "$(echo "$RESPONSE" | jq .productId)"
 assertEqual 3 "$(echo "$RESPONSE" | jq ".recommendations | length")"
 assertEqual 3 "$(echo "$RESPONSE" | jq ".reviews | length")"
 
 # Verify that a 404 (Not Found) error is returned for a non-existing productId ($PROD_ID_NOT_FOUND)
-assertCurl 404 "curl http://$HOST:$PORT/composite/product/$PROD_ID_NOT_FOUND -s"
+assertCurl 404 "curl -k https://$HOST:$PORT/composite/product/$PROD_ID_NOT_FOUND -s"
 assertEqual "No product found for product-id: $PROD_ID_NOT_FOUND" "$(echo "$RESPONSE" | jq -r .message)"
 
 # Verify that no recommendations are returned for productId $PROD_ID_NO_RECS
-assertCurl 200 "curl http://$HOST:$PORT/composite/product/$PROD_ID_NO_RECS -s"
+assertCurl 200 "curl -k https://$HOST:$PORT/composite/product/$PROD_ID_NO_RECS -s"
 assertEqual "$PROD_ID_NO_RECS" "$(echo "$RESPONSE" | jq .productId)"
 assertEqual 0 "$(echo "$RESPONSE" | jq ".recommendations | length")"
 assertEqual 3 "$(echo "$RESPONSE" | jq ".reviews | length")"
 
 # Verify that no reviews are returned for productId $PROD_ID_NO_REVS
-assertCurl 200 "curl http://$HOST:$PORT/composite/product/$PROD_ID_NO_REVS -s"
+assertCurl 200 "curl -k https://$HOST:$PORT/composite/product/$PROD_ID_NO_REVS -s"
 assertEqual "$PROD_ID_NO_REVS" "$(echo "$RESPONSE" | jq .productId)"
 assertEqual 3 "$(echo "$RESPONSE" | jq ".recommendations | length")"
 assertEqual 0 "$(echo "$RESPONSE" | jq ".reviews | length")"
 
 # Verify that a 422 (Unprocessable Entity) error is returned for a productId that is out of range (-1)
-assertCurl 422 "curl http://$HOST:$PORT/composite/product/-1 -s"
+assertCurl 422 "curl -k https://$HOST:$PORT/composite/product/-1 -s"
 assertEqual "\"Invalid product-id: -1\"" "$(echo "$RESPONSE" | jq .message)"
 
 # Verify that a 400 (Bad Request) error error is returned for a productId that is not a number, i.e. invalid format
-assertCurl 400 "curl http://$HOST:$PORT/composite/product/invalidProductId -s"
+assertCurl 400 "curl -k https://$HOST:$PORT/composite/product/invalidProductId -s"
 assertEqual "\"Type mismatch.\"" "$(echo "$RESPONSE" | jq .message)"
 
 # Verify access to Swagger and OpenAPI URLs
 echo "Swagger/OpenAPI tests"
-assertCurl 302 "curl -s  http://$HOST:$PORT/openapi/swagger-ui.html"
-assertCurl 200 "curl -sL http://$HOST:$PORT/openapi/swagger-ui.html"
-assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/webjars/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config"
-assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs"
+assertCurl 302 "curl -k -s  https://$HOST:$PORT/openapi/swagger-ui.html"
+assertCurl 200 "curl -k -sL https://$HOST:$PORT/openapi/swagger-ui.html"
+assertCurl 200 "curl -k -s  https://$HOST:$PORT/openapi/webjars/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config"
+assertCurl 200 "curl -k -s  https://$HOST:$PORT/openapi/v3/api-docs"
 assertEqual "3.0.1" "$(echo "$RESPONSE" | jq -r .openapi)"
-assertEqual "http://$HOST:$PORT" "$(echo "$RESPONSE" | jq -r '.servers[0].url')"
-assertCurl 200 "curl -s  http://$HOST:$PORT/openapi/v3/api-docs.yaml"
+assertEqual "https://$HOST:$PORT" "$(echo "$RESPONSE" | jq -r '.servers[0].url')"
+assertCurl 200 "curl -k -s https://$HOST:$PORT/openapi/v3/api-docs.yaml"
 
 if [[ $* == *"stop"* ]]
 then

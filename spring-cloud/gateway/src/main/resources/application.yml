@@ -1,6 +1,16 @@
-server.port: 8080
+server.port: 8443
 
 spring.application.name: gateway
+
+spring.ssl.bundle.jks.gateway:
+  key:
+    alias: ${GATEWAY_KEY_ALIAS:localhost}
+  keystore:
+    type: ${GATEWAY_KEYSTORE_TYPE:PKCS12}
+    location: ${GATEWAY_KEYSTORE_LOCATION:classpath:edge-test.p12}
+    password: ${GATEWAY_KEYSTORE_PASSWORD:password}
+
+server.ssl.bundle: gateway
 
 app.eureka-server: localhost
 
