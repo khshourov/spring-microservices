@@ -21,6 +21,7 @@ ext {
 dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
     implementation libs.jaxb.runtime
+    implementation libs.spring.boot.starter.security
 
     testImplementation libs.spring.boot.starter.test
 }

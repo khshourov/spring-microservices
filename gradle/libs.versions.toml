@@ -17,6 +17,7 @@ jaxb-runtime = "4.0.5"
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator", version.ref = "spring-boot" }
 spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-starter-webflux", version.ref = "spring-boot" }
+spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "spring-boot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
 reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor-test" }
 openapi-starter-common = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "spring-openapi" }
