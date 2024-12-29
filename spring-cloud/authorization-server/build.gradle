@@ -20,11 +20,12 @@ ext {
 
 dependencies {
     implementation libs.spring.boot.starter.actuator
+    implementation libs.spring.boot.starter.auth.server
     implementation libs.spring.boot.starter.security
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
 
     testImplementation libs.spring.boot.starter.test
+    testImplementation libs.spring.security.test
 }
 
 dependencyManagement {
@@ -34,7 +35,7 @@ dependencyManagement {
 }
 
 base {
-    archivesName = 'gateway'
+    archivesName = 'authorization-server'
 }
 
 version = '0.0.1'
@@ -42,7 +43,7 @@ group = 'com.github.khshourov.springcloud'
 
 application {
     // Define the main class for the application.
-    mainClass = 'com.github.khshourov.springcloud.gateway.GatewayApplication'
+    mainClass = 'com.github.khshourov.springcloud.authorizationserver.OAuth2AuthorizationServerApplication'
 }
 
 checkstyle {

@@ -22,3 +22,4 @@ include(':microservices:product-composite-service')
 
 include(':spring-cloud:service-discovery')
 include(':spring-cloud:gateway')
+include(':spring-cloud:authorization-server')

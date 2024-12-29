@@ -188,7 +188,7 @@ waitForService curl -k "https://$HOST:$PORT/actuator/health"
 
 # Verify access to Eureka and that all four microservices are registered in Eureka
 assertCurl 200 "curl -k -H 'accept:application/json' https://$EUREKA_USERNAME:$EUREKA_PASSWORD@$HOST:$PORT/eureka/api/apps -s"
-assertEqual 5 "$(echo "$RESPONSE" | jq ".applications.application | length")"
+assertEqual 6 "$(echo "$RESPONSE" | jq ".applications.application | length")"
 # Verify that Eureka(edge-server) needs basic authentication
 assertCurl 401 "curl -k -H 'accept:application/json' https://$HOST:$PORT/eureka/api/apps -s"
 
