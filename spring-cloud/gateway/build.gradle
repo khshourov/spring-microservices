@@ -23,6 +23,8 @@ dependencies {
     implementation libs.spring.boot.starter.security
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
     implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+    implementation libs.spring.security.oauth2
+    implementation libs.spring.security.oauth2.jose
 
     testImplementation libs.spring.boot.starter.test
 }

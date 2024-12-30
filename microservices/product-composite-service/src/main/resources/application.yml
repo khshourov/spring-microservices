@@ -3,6 +3,17 @@ springdoc:
   api-docs.path: /openapi/v3/api-docs
   packagesToScan: com.github.khshourov.microservices.composite.product
   pathsToMatch: /**
+  cache.disabled: true
+
+  swagger-ui:
+    oauth2-redirect-url: /swagger-ui/oauth2-redirect.html
+    oauth:
+      clientId: writer
+      clientSecret: secret-writer
+      useBasicAuthenticationWithAccessCodeGrant: true
+  oAuthFlow:
+    authorizationUrl: https://localhost:8443/oauth2/authorize
+    tokenUrl: https://localhost:8443/oauth2/token
 
 server.forward-headers-strategy: framework
 
@@ -87,6 +98,9 @@ app:
   eureka-server: localhost
   eureka-username: ${EUREKA_USERNAME:username}
   eureka-password: ${EUREKA_PASSWORD:password}
+  auth-server: localhost
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
 
 eureka:
   client:
@@ -128,7 +142,7 @@ spring.rabbitmq:
 logging:
   level:
     root: INFO
-    se.magnus: DEBUG
+    com.github.khshourov.microservices: DEBUG
 
 management.endpoint.health.show-details: "ALWAYS"
 management.endpoints.web.exposure.include: "*"
@@ -138,7 +152,9 @@ spring.config.activate.on-profile: docker
 
 server.port: 8080
 
-app.eureka-server: eureka
+app:
+  eureka-server: eureka
+  auth-server: auth-server
 
 spring.rabbitmq.host: rabbitmq
 

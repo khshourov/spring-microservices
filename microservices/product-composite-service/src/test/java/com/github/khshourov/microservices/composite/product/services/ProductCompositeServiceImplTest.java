@@ -14,6 +14,7 @@ import com.github.khshourov.microservices.api.core.product.Product;
 import com.github.khshourov.microservices.api.core.recommendation.Recommendation;
 import com.github.khshourov.microservices.api.core.review.Review;
 import com.github.khshourov.microservices.api.event.Event;
+import com.github.khshourov.microservices.composite.product.testlib.TestSecurityConfig;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +31,9 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(
     webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+    classes = {TestSecurityConfig.class},
     properties = {
+      "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
       "spring.main.allow-bean-definition-overriding=true",
       "eureka.client.enabled=false"
     })

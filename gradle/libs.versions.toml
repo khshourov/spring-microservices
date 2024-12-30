@@ -12,7 +12,7 @@ mapstruct = "1.6.3"
 testcontainers = "1.20.4"
 mysql-connector = "9.1.0"
 jaxb-runtime = "4.0.5"
-spring-security-test = "6.4.2"
+spring-security = "6.4.2"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -21,7 +21,9 @@ spring-boot-starter-webflux = { module = "org.springframework.boot:spring-boot-s
 spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-starter-security", version.ref = "spring-boot" }
 spring-boot-starter-auth-server = { module = "org.springframework.boot:spring-boot-starter-oauth2-authorization-server", version.ref = "spring-boot" }
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test", version.ref = "spring-boot" }
-spring-security-test = { module = "org.springframework.security:spring-security-test", version.ref = "spring-security-test" }
+spring-security-oauth2 = { module = "org.springframework.security:spring-security-oauth2-resource-server", version.ref = "spring-security" }
+spring-security-oauth2-jose = { module = "org.springframework.security:spring-security-oauth2-jose", version.ref = "spring-security" }
+spring-security-test = { module = "org.springframework.security:spring-security-test", version.ref = "spring-security" }
 reactor-test = { module = "io.projectreactor:reactor-test", version.ref = "reactor-test" }
 openapi-starter-common = { module = "org.springdoc:springdoc-openapi-starter-common", version.ref = "spring-openapi" }
 openapi-starter-webflux-ui = { module = "org.springdoc:springdoc-openapi-starter-webflux-ui", version.ref = "spring-openapi" }

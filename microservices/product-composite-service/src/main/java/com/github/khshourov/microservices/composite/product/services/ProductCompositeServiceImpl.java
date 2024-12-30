@@ -19,12 +19,19 @@ import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextImpl;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 @RestController
 public class ProductCompositeServiceImpl implements ProductCompositeService {
   private static final Logger log = LoggerFactory.getLogger(ProductCompositeServiceImpl.class);
+
+  private final SecurityContext nullSecCtx = new SecurityContextImpl();
 
   private final ServiceUtil serviceUtil;
   private final ProductCompositeIntegration integration;
@@ -44,6 +51,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
           request.productId());
 
       List<Mono<?>> monoList = new ArrayList<>();
+      monoList.add(this.getLogAuthorizationInfoMono());
 
       Product product = new Product(request.productId(), request.name(), request.weight(), null);
       monoList.add(this.integration.createProduct(product));
@@ -96,6 +104,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     try {
       return Mono.zip(
               r -> "",
+              getLogAuthorizationInfoMono(),
               this.integration.deleteProduct(productId),
               this.integration.deleteReviews(productId),
               this.integration.deleteRecommendations(productId))
@@ -114,7 +123,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
   public Mono<ProductAggregate> getProduct(int productId) {
     return Mono.zip(
             values -> {
-              if (values.length != 3) {
+              if (values.length != 4) {
                 throw new RuntimeException(
                     "Expected 3 values, but got " + values.length + " values.");
               }
@@ -123,11 +132,13 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
               }
 
               return this.createProductAggregate(
-                  (Product) values[0],
-                  (List<Recommendation>) values[1],
-                  (List<Review>) values[2],
+                  (SecurityContext) values[0],
+                  (Product) values[1],
+                  (List<Recommendation>) values[2],
+                  (List<Review>) values[3],
                   serviceUtil.getServiceAddress());
             },
+            getSecurityContextMono(),
             this.integration.getProduct(productId),
             this.integration.getRecommendations(productId).collectList(),
             this.integration.getReviews(productId).collectList())
@@ -136,10 +147,12 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
   }
 
   private ProductAggregate createProductAggregate(
+      SecurityContext securityContext,
       Product product,
       List<Recommendation> recommendations,
       List<Review> reviews,
       String serviceAddress) {
+    this.logAuthorizationInfo(securityContext);
 
     int productId = product.productId();
     String name = product.name();
@@ -176,5 +189,38 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
     return new ProductAggregate(
         productId, name, weight, recommendationSummaries, reviewSummaries, serviceAddresses);
+  }
+
+  private Mono<SecurityContext> getLogAuthorizationInfoMono() {
+    return getSecurityContextMono().doOnNext(this::logAuthorizationInfo);
+  }
+
+  private Mono<SecurityContext> getSecurityContextMono() {
+    return ReactiveSecurityContextHolder.getContext().defaultIfEmpty(nullSecCtx);
+  }
+
+  private void logAuthorizationInfo(SecurityContext sc) {
+    if (sc != null
+        && sc.getAuthentication() != null
+        && sc.getAuthentication() instanceof JwtAuthenticationToken) {
+      Jwt jwtToken = ((JwtAuthenticationToken) sc.getAuthentication()).getToken();
+      logAuthorizationInfo(jwtToken);
+    } else {
+      log.warn("No JWT based Authentication supplied, running tests are we?");
+    }
+  }
+
+  private void logAuthorizationInfo(Jwt jwt) {
+    if (jwt == null) {
+      log.warn("No JWT supplied");
+    } else if (log.isDebugEnabled()) {
+      log.debug(
+          "Authorization info: Subject: {}, scopes: {}, expires: {}, issuer: {}, audience: {}",
+          jwt.getClaims().get("sub"),
+          jwt.getClaims().get("scope"),
+          jwt.getClaims().get("exp"),
+          jwt.getIssuer(),
+          jwt.getAudience());
+    }
   }
 }

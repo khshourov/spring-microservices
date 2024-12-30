@@ -15,6 +15,7 @@ import com.github.khshourov.microservices.api.core.recommendation.Recommendation
 import com.github.khshourov.microservices.api.core.review.Review;
 import com.github.khshourov.microservices.api.exceptions.InvalidInputException;
 import com.github.khshourov.microservices.api.exceptions.NotFoundException;
+import com.github.khshourov.microservices.composite.product.testlib.TestSecurityConfig;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,12 @@ import reactor.core.publisher.Mono;
 
 @SpringBootTest(
     webEnvironment = RANDOM_PORT,
-    properties = {"eureka.client.enabled=false"})
+    classes = {TestSecurityConfig.class},
+    properties = {
+      "spring.security.oauth2.resourceserver.jwt.issuer-uri=",
+      "spring.main.allow-bean-definition-overriding=true",
+      "eureka.client.enabled=false"
+    })
 class ProductCompositeServiceApplicationTest {
   private static final int PRODUCT_ID_OK = 1;
   private static final int PRODUCT_ID_NOT_FOUND = 2;

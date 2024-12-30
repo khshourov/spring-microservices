@@ -16,6 +16,9 @@ app:
   eureka-server: localhost
   eureka-username: ${EUREKA_USERNAME:username}
   eureka-password: ${EUREKA_PASSWORD:password}
+  auth-server: localhost
+
+spring.security.oauth2.resourceserver.jwt.issuer-uri: http://${app.auth-server}:9999
 
 eureka:
   client:
@@ -109,4 +112,6 @@ logging:
 ---
 spring.config.activate.on-profile: docker
 
-app.eureka-server: eureka
+app:
+  eureka-server: eureka
+  auth-server: auth-server
