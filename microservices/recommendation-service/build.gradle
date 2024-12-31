@@ -36,6 +36,9 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-rabbit'
     implementation 'org.springframework.cloud:spring-cloud-starter-stream-kafka'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-config-client'
+    implementation libs.spring.retry
 
     compileOnly libs.mapstruct.annotation.processor
     annotationProcessor libs.mapstruct.annotation.processor

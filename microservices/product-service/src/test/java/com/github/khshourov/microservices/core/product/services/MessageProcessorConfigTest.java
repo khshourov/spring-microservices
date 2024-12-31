@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.data.mongo.DataMongoTest;
 import reactor.test.StepVerifier;
 
-@DataMongoTest
+@DataMongoTest(properties = {"spring.cloud.config.enabled=false"})
 public class MessageProcessorConfigTest extends MongoDbTestBase {
   @Autowired
   @Qualifier("messageProcessor") private Consumer<Event<Integer, Product>> eventConsumer;

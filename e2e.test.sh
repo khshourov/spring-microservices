@@ -10,8 +10,8 @@
 : "${PROD_ID_NOT_FOUND=13}"
 : "${PROD_ID_NO_RECS=113}"
 : "${PROD_ID_NO_REVS=213}"
-: "${EUREKA_USERNAME=username}"
-: "${EUREKA_PASSWORD=password}"
+: "${EUREKA_USERNAME=u}"
+: "${EUREKA_PASSWORD=p}"
 
 function assertCurl() {
   local expectedHttpCode

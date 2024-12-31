@@ -20,7 +20,7 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 
 @SpringBootTest(
     webEnvironment = RANDOM_PORT,
-    properties = {"eureka.client.enabled=false"})
+    properties = {"eureka.client.enabled=false", "spring.cloud.config.enabled=false"})
 class RecommendationServiceApplicationTest extends MongoDbTestBase {
   @Autowired private WebTestClient client;
 

@@ -18,7 +18,7 @@ import reactor.test.StepVerifier;
 
 @SpringBootTest(
     webEnvironment = RANDOM_PORT,
-    properties = {"eureka.client.enabled=false"})
+    properties = {"eureka.client.enabled=false", "spring.cloud.config.enabled=false"})
 class ProductServiceApplicationTest extends MongoDbTestBase {
   @Autowired private WebTestClient client;
   @Autowired private ProductRepository repository;

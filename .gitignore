@@ -27,3 +27,6 @@ build
 
 # Self signed certificates
 .certificates
+
+# Environment file
+.env

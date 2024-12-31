@@ -32,6 +32,8 @@ public class SecurityConfig {
                     .permitAll()
                     .pathMatchers("/webjars/**")
                     .permitAll()
+                    .pathMatchers("/config/**")
+                    .permitAll()
                     .anyExchange()
                     .authenticated())
         .oauth2ResourceServer(

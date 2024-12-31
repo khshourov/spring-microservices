@@ -22,6 +22,9 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
     implementation libs.jaxb.runtime
     implementation libs.spring.boot.starter.security
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-config-client'
+    implementation libs.spring.retry
 
     testImplementation libs.spring.boot.starter.test
 }

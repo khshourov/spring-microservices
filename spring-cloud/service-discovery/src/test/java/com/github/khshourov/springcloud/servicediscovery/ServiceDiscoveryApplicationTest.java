@@ -12,7 +12,9 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest(
+    webEnvironment = RANDOM_PORT,
+    properties = {"spring.cloud.config.enabled=false"})
 class ServiceDiscoveryApplicationTest {
   @Autowired private TestRestTemplate testRestTemplate;
 
