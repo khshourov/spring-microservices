@@ -14,7 +14,9 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-        .csrf(AbstractHttpConfigurer::disable)
+        .csrf(
+            AbstractHttpConfigurer
+                ::disable) // NOSONAR: CSRF protection is disabled intentionally for API endpoints
         .authorizeHttpRequests(
             authorizationManagerRequestMatcherRegistry ->
                 authorizationManagerRequestMatcherRegistry.anyRequest().authenticated())
