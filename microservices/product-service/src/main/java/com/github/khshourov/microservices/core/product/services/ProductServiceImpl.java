@@ -8,6 +8,8 @@ import com.github.khshourov.microservices.core.product.persistence.ProductEntity
 import com.github.khshourov.microservices.core.product.persistence.ProductMapper;
 import com.github.khshourov.microservices.core.product.persistence.ProductRepository;
 import com.github.khshourov.microservices.util.http.ServiceUtil;
+import java.time.Duration;
+import java.util.Random;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +21,8 @@ import reactor.core.publisher.Mono;
 @RestController
 public class ProductServiceImpl implements ProductService {
   private static final Logger log = LoggerFactory.getLogger(ProductServiceImpl.class);
+
+  private final Random randomNumberGenerator = new Random();
 
   private final ServiceUtil serviceUtil;
   private final ProductRepository repository;
@@ -58,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
-  public Mono<Product> getProduct(int productId) {
+  public Mono<Product> getProduct(int productId, int delay, int faultPercent) {
     log.debug("GET /product/{}", productId);
 
     if (productId < 1) {
@@ -67,10 +71,37 @@ public class ProductServiceImpl implements ProductService {
 
     return this.repository
         .findByProductId(productId)
+        .map(entity -> this.throwErrorIfBadLuck(entity, faultPercent))
+        .delayElement(Duration.ofSeconds(delay))
         .switchIfEmpty(
             Mono.error(new NotFoundException("No product found for product-id: " + productId)))
         .log(log.getName(), Level.FINE)
         .map(this.mapper::entityToApi)
         .map(product -> product.updateServiceAddress(serviceUtil.getServiceAddress()));
+  }
+
+  private ProductEntity throwErrorIfBadLuck(ProductEntity entity, int faultPercent) {
+    if (faultPercent == 0) {
+      return entity;
+    }
+
+    int randomThreshold = getRandomNumber(1, 100);
+
+    if (faultPercent < randomThreshold) {
+      log.debug("We got lucky, no error occurred, {} < {}", faultPercent, randomThreshold);
+    } else {
+      log.info("Bad luck, an error occurred, {} >= {}", faultPercent, randomThreshold);
+      throw new RuntimeException("Something went wrong...");
+    }
+
+    return entity;
+  }
+
+  private int getRandomNumber(int min, int max) {
+    if (max < min) {
+      throw new IllegalArgumentException("Max must be greater than min");
+    }
+
+    return randomNumberGenerator.nextInt((max - min) + 1) + min;
   }
 }

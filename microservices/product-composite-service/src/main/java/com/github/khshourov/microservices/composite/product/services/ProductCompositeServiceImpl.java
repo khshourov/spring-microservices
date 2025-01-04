@@ -120,7 +120,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
   @SuppressWarnings({"unchecked"})
   @Override
-  public Mono<ProductAggregate> getProduct(int productId) {
+  public Mono<ProductAggregate> getProduct(int productId, int delay, int faultPercent) {
     return Mono.zip(
             values -> {
               if (values.length != 4) {
@@ -139,7 +139,7 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
                   serviceUtil.getServiceAddress());
             },
             getSecurityContextMono(),
-            this.integration.getProduct(productId),
+            this.integration.getProduct(productId, delay, faultPercent),
             this.integration.getRecommendations(productId).collectList(),
             this.integration.getReviews(productId).collectList())
         .doOnError(ex -> log.warn("getCompositeProduct failed: {}", ex.toString()))

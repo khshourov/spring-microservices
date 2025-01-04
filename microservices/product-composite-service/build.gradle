@@ -16,6 +16,7 @@ plugins {
 
 ext {
     springCloudVersion = '2024.0.0'
+    resilience4jVersion = '2.3.0'
 }
 
 dependencies {
@@ -42,6 +43,10 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-config-client'
     implementation libs.spring.retry
 
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:${resilience4jVersion}"
+    implementation "io.github.resilience4j:resilience4j-reactor:${resilience4jVersion}"
+    implementation libs.spring.aop
+
     testImplementation libs.spring.boot.starter.test
     testImplementation libs.reactor.test
     testImplementation 'org.springframework.cloud:spring-cloud-stream-test-binder'
@@ -50,6 +55,8 @@ dependencies {
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+
+        mavenBom "io.github.resilience4j:resilience4j-bom:${resilience4jVersion}"
     }
 }
 

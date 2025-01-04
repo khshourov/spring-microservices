@@ -41,6 +41,7 @@ testcontainers-mongodb = { module = "org.testcontainers:mongodb", version.ref = 
 testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "testcontainers" }
 jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-runtime" }
 spring-retry = { module = "org.springframework.retry:spring-retry", version.ref = "spring-retry" }
+spring-aop = { module = "org.springframework.boot:spring-boot-starter-aop", version.ref = "spring-boot" }
 
 [plugins]
 checkstyle = { id = "checkstyle" }
