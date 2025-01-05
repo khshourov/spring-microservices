@@ -47,6 +47,9 @@ dependencies {
     implementation "io.github.resilience4j:resilience4j-reactor:${resilience4jVersion}"
     implementation libs.spring.aop
 
+    implementation libs.micrometer.tracer
+    implementation libs.micrometer.reporter
+
     testImplementation libs.spring.boot.starter.test
     testImplementation libs.reactor.test
     testImplementation 'org.springframework.cloud:spring-cloud-stream-test-binder'

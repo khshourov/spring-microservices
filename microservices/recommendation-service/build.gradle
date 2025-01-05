@@ -40,6 +40,9 @@ dependencies {
     implementation 'org.springframework.cloud:spring-cloud-config-client'
     implementation libs.spring.retry
 
+    implementation libs.micrometer.tracer
+    implementation libs.micrometer.reporter
+
     compileOnly libs.mapstruct.annotation.processor
     annotationProcessor libs.mapstruct.annotation.processor
     testAnnotationProcessor libs.mapstruct.annotation.processor

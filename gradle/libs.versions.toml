@@ -15,6 +15,9 @@ jaxb-runtime = "4.0.5"
 spring-security = "6.4.2"
 spring-retry = "2.0.11"
 spring-core = "6.2.1"
+micrometer-tracer = "1.4.1"
+micrometer-tracer-mysql = "1.0.1"
+micrometer-reporter = "1.45.0"
 
 [libraries]
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
@@ -42,6 +45,9 @@ testcontainers-mysql = { module = "org.testcontainers:mysql", version.ref = "tes
 jaxb-runtime = { module = "org.glassfish.jaxb:jaxb-runtime", version.ref = "jaxb-runtime" }
 spring-retry = { module = "org.springframework.retry:spring-retry", version.ref = "spring-retry" }
 spring-aop = { module = "org.springframework.boot:spring-boot-starter-aop", version.ref = "spring-boot" }
+micrometer-tracer = { module = "io.micrometer:micrometer-tracing-bridge-otel", version.ref = "micrometer-tracer" }
+micrometer-tracer-mysql = { module = "net.ttddyy.observation:datasource-micrometer-spring-boot", version.ref = "micrometer-tracer-mysql" }
+micrometer-reporter = { module = "io.opentelemetry:opentelemetry-exporter-zipkin", version.ref = "micrometer-reporter" }
 
 [plugins]
 checkstyle = { id = "checkstyle" }
