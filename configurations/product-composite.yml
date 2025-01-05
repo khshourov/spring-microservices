@@ -144,7 +144,8 @@ resilience4j.circuitbreaker:
 logging:
   level:
     root: INFO
-    com.github.khshourov.microservices: DEBUG
+    com.github.khshourov.microservices: INFO
+    org.springframework.web.server.adapter.HttpWebHandlerAdapter: INFO
 
 ---
 spring.config.activate.on-profile: docker

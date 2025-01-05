@@ -37,7 +37,7 @@ spring.cloud.stream.kafka.bindings.messageProcessor-in-0.consumer:
 logging:
   level:
     root: INFO
-    com.github.khshourov.microservices: DEBUG
+    com.github.khshourov.microservices: INFO
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
 
