@@ -53,12 +53,12 @@ public class ProductCompositeIntegrationImpl implements ProductCompositeIntegrat
 
   @Autowired
   public ProductCompositeIntegrationImpl(
-      WebClient.Builder webClientBuilder,
+      WebClient webClient,
       ObjectMapper objectMapper,
       StreamBridge streamBridge,
       @Qualifier("publishEventScheduler") Scheduler publishEventScheduler,
       ServiceUtil serviceUtil) {
-    this.webClient = webClientBuilder.build();
+    this.webClient = webClient;
     this.objectMapper = objectMapper;
     this.streamBridge = streamBridge;
     this.publishEventScheduler = publishEventScheduler;

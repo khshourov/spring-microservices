@@ -10,11 +10,13 @@ import com.github.khshourov.microservices.api.core.recommendation.Recommendation
 import com.github.khshourov.microservices.api.core.review.Review;
 import com.github.khshourov.microservices.api.exceptions.NotFoundException;
 import com.github.khshourov.microservices.composite.product.ProductCompositeIntegration;
+import com.github.khshourov.microservices.composite.product.services.tracing.ObservationUtil;
 import com.github.khshourov.microservices.util.http.ServiceUtil;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,16 +37,24 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
   private final ServiceUtil serviceUtil;
   private final ProductCompositeIntegration integration;
+  private final ObservationUtil observationUtil;
 
   @Autowired
   public ProductCompositeServiceImpl(
-      ServiceUtil serviceUtil, ProductCompositeIntegration integration) {
+      ServiceUtil serviceUtil,
+      ProductCompositeIntegration integration,
+      ObservationUtil observationUtil) {
     this.serviceUtil = serviceUtil;
     this.integration = integration;
+    this.observationUtil = observationUtil;
   }
 
   @Override
   public Mono<Void> createProduct(ProductAggregate request) {
+    return observationWithProductInfo(request.productId(), () -> createProductInternal(request));
+  }
+
+  private Mono<Void> createProductInternal(ProductAggregate request) {
     try {
       log.debug(
           "createCompositeProduct: creating a new composite entity for product-id: {}",
@@ -99,6 +109,10 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
 
   @Override
   public Mono<Void> deleteProduct(int productId) {
+    return observationWithProductInfo(productId, () -> deleteProductInternal(productId));
+  }
+
+  private Mono<Void> deleteProductInternal(int productId) {
     log.debug("deleteCompositeProduct: deleting composite entity for product-id: {}", productId);
 
     try {
@@ -118,9 +132,14 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
     return Mono.empty();
   }
 
-  @SuppressWarnings({"unchecked"})
   @Override
   public Mono<ProductAggregate> getProduct(int productId, int delay, int faultPercent) {
+    return observationWithProductInfo(
+        productId, () -> getProductInternal(productId, delay, faultPercent));
+  }
+
+  @SuppressWarnings({"unchecked"})
+  private Mono<ProductAggregate> getProductInternal(int productId, int delay, int faultPercent) {
     return Mono.zip(
             values -> {
               if (values.length != 4) {
@@ -222,5 +241,14 @@ public class ProductCompositeServiceImpl implements ProductCompositeService {
           jwt.getIssuer(),
           jwt.getAudience());
     }
+  }
+
+  private <T> T observationWithProductInfo(int productInfo, Supplier<T> supplier) {
+    return this.observationUtil.observe(
+        "composite observation",
+        "product info",
+        "productId",
+        String.valueOf(productInfo),
+        supplier);
   }
 }

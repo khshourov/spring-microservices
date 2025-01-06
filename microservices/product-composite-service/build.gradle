@@ -113,3 +113,7 @@ testing {
         }
     }
 }
+
+springBoot {
+    buildInfo()
+}
